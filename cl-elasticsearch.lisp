@@ -90,14 +90,16 @@ objects and read back as keywords")
 
 (defun keywords-to-strings (x)
   (typecase x
-    (hash-table (maphash (lambda (k v)
-                           (let ((newv (keywords-to-strings v)))
-                             (if (eq (type-of k) 'keyword)
-                                 (progn
-                                   (remhash k x)
-                                   (setf (gethash (keyword-downcase k) x) newv))
-                                 (setf (gethash k x) newv))))
-                         x))
+    (hash-table (progn
+                  (maphash (lambda (k v)
+                             (let ((newv (keywords-to-strings v)))
+                               (if (eq (type-of k) 'keyword)
+                                   (progn
+                                     (remhash k x)
+                                     (setf (gethash (keyword-downcase k) x) newv))
+                                   (setf (gethash k x) newv))))
+                           x)
+                  x))
     (list (mapcar #'keywords-to-strings x))
     (vector (map 'vector #'keywords-to-strings x))
     (keyword (keyword-downcase x))
@@ -137,6 +139,8 @@ objects and read back as keywords")
 (defmacro disable-hashtable-syntax ()
   '(eval-when (:compile-toplevel :load-toplevel :execute)
     (setq *readtable* (pop *previous-readtables*))))
+
+;; (find-method #'print-object () (list 'hash-table t))
 
 (defmethod print-object ((object hash-table) stream)
   (if (= (hash-table-count object) 0)
