@@ -8,7 +8,7 @@
 
 ;; NOTE: To run this test file, execute `(asdf:test-system :cl-elasticsearch)' in your Lisp.
 
-(defvar client (make-instance '<client>))
+(defvar *client* (make-instance '<client>))
 
 (send-request client "")
 

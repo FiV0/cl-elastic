@@ -16,7 +16,10 @@
            :endpoint
            :user
            :password
-           :send-request))
+           :send-request
+           :*enable-keywords*
+           :enable-hashtable-syntax
+           :disable-hashtable-syntax))
 
 (in-package :cl-elasticsearch)
 
@@ -107,17 +110,33 @@ objects and read back as keywords")
              (format stream "Hashmap literal must contain an even number of forms."))))
 
 (defun |#{-reader-}| (stream char arg)
-  (declare (ignore char arg))
-  (let ((res (make-hash-table))
-        (pairs (read-delimited-list #\} stream t)))
-    (when (oddp (length pairs)) (error 'odd-number-of-forms))
-    (loop for ps = pairs then (cddr ps)
-       do (setf (gethash (car ps) res) (cadr ps))
-       until (null (cddr ps)))
-    res))
+  (declare (ignore char) (ignore arg))
+  (let ((*readtable* (copy-readtable *readtable* nil)))
+    (set-macro-character #\} (get-macro-character #\)))
+    (let ((contents (read-delimited-list #\} stream t)))
+      (when (oddp (length contents)) (error 'odd-number-of-forms))
+      (let ((pairs (loop for pairs = contents then (cddr pairs)
+                      collect (list (car pairs) (cadr pairs))
+                      until (null (cddr pairs))))
+            (res (gensym)))
+        `(let ((,res (make-hash-table :test #'equal)))
+           ,@(mapcar
+              (lambda (pair)
+                `(setf (gethash ,(car pair) ,res) ,(cadr pair)))
+              pairs)
+           ,res)))))
 
-(set-dispatch-macro-character #\# #\{ #'|#{-reader-}|)
-(set-macro-character #\} (get-macro-character #\)))
+(defvar *previous-readtables* nil)
+
+(defmacro enable-hashtable-syntax ()
+  '(eval-when (:compile-toplevel :load-toplevel :execute)
+    (push *readtable* *previous-readtables*)
+    (setq *readtable* (copy-readtable))
+    (set-dispatch-macro-character #\# #\{ #'|#{-reader-}|)))
+
+(defmacro disable-hashtable-syntax ()
+  '(eval-when (:compile-toplevel :load-toplevel :execute)
+    (setq *readtable* (pop *previous-readtables*))))
 
 (defmethod print-object ((object hash-table) stream)
   (if (= (hash-table-count object) 0)
