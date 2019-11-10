@@ -15,8 +15,11 @@ the section about other work.
 ## Other work
 
 There are a couple of other clients, although non of them are in Quicklisp:
+
 [clesc](https://github.com/own-pt/clesc)
+
 [cl-elasticsearch](https://github.com/kraison/cl-elasticsearch)
+
 [eclastic](https://github.com/gschjetne/eclastic)
 
 ## Author

@@ -5,5 +5,126 @@
 |#
 
 (defpackage cl-elasticsearch
-  (:use :cl))
+  (:use :cl)
+  (:import-from :yason
+                :encode
+                :parse)
+  (:import-from :drakma
+                :http-request
+                :*text-content-types*)
+  (:export :<client>
+           :endpoint
+           :user
+           :password
+           :send-request))
+
 (in-package :cl-elasticsearch)
+
+(defvar *enable-keywords* nil
+  "If set to a true value, keywords will be transformed to strings in JSON 
+objects and read back as keywords")
+
+(defclass <client> ()
+  ((endpoint :initarg :endpoint
+             :initform "http://localhost:9200"
+             :reader endpoint)
+   (user :initarg :user
+         :initform nil
+         :reader user)
+   (password :initarg :password
+             :initform nil
+             :reader password)))
+
+(defun parse-uri (uri)
+  "Parses a URI in form of string, keyword or list."
+  (typecase uri
+    (string uri)
+    (keyword (keyword-downcase uri))
+    (list (reduce (lambda (res uri)
+                    (format nil "~A/~A" res (parse-uri uri)))
+                  uri :initial-value ""))))
+
+(defun create-uri (client uri)
+  (format nil "~A~A" (endpoint client) (parse-uri uri)))
+
+(defun send-request (client uri &key (method :get) data parameters)
+  "Sends a request to an Elasticsearch client."
+  (assert (eq (type-of client) '<client>))
+  (let ((*text-content-types*
+         '(("application" . "json")))
+        (uri (create-uri client uri))
+        (yason:*parse-object-key-fn* (if *enable-keywords* #'make-keyword #'identity))
+        (data (if *enable-keywords* (keywords-to-strings data) data))
+        (parameters (if *enable-keywords*
+                        (mapcar (lambda (p) (cons (keywords-to-strings (car p)) (cdr p)))
+                                parameters)
+                        parameters)))
+    (multiple-value-bind (body status headers uri stream closep reason)
+        (http-request uri
+                      :method method
+                      :content (yason:encode data)
+                      :content-type "application/json"
+                      :external-format-in :utf-8
+                      :external-format-out :utf-8
+                      :parameters parameters 
+                      :want-stream T)
+      (declare (ignore headers uri stream reason))
+      (unwind-protect
+           (if (= status 400)
+               (error (gethash "error" (yason:parse body)))
+               (values (yason:parse body) status))
+        (when closep
+          (close body))))))
+
+;; utility functions
+
+(defun make-keyword (name)
+  "Creates a keyword symbol for a given "
+  (values (intern (string-upcase name) "KEYWORD")))
+
+(defun keyword-downcase (keyword)
+  (string-downcase (string keyword)))
+
+(defun keywords-to-strings (x)
+  (typecase x
+    (hash-table (maphash (lambda (k v)
+                           (let ((newv (keywords-to-strings v)))
+                             (if (eq (type-of k) 'keyword)
+                                 (progn
+                                   (remhash k x)
+                                   (setf (gethash (keyword-downcase k) x) newv))
+                                 (setf (gethash k x) newv))))
+                         x))
+    (list (mapcar #'keywords-to-strings x))
+    (vector (map 'vector #'keywords-to-strings x))
+    (keyword (keyword-downcase x))
+    (t x)))
+
+;; new hashtable syntax
+(define-condition odd-number-of-forms (error) ()
+  (:report (lambda (condition stream)
+             (declare (ignore condition))
+             (format stream "Hashmap literal must contain an even number of forms."))))
+
+(defun |#{-reader-}| (stream char arg)
+  (declare (ignore char arg))
+  (let ((res (make-hash-table))
+        (pairs (read-delimited-list #\} stream t)))
+    (when (oddp (length pairs)) (error 'odd-number-of-forms))
+    (loop for ps = pairs then (cddr ps)
+       do (setf (gethash (car ps) res) (cadr ps))
+       until (null (cddr ps)))
+    res))
+
+(set-dispatch-macro-character #\# #\{ #'|#{-reader-}|)
+(set-macro-character #\} (get-macro-character #\)))
+
+(defmethod print-object ((object hash-table) stream)
+  (if (= (hash-table-count object) 0)
+      (format stream "#{}")
+      (let ((data (loop for k being the hash-keys of object
+                     for v being the hash-values of object
+                     for res = (format nil "~S ~S" k v)
+                     then (format nil "~A ~S ~S" res k v)
+                     finally (return res))))
+        (format stream "#{~A}" data))))

@@ -7,12 +7,13 @@
 (asdf:defsystem cl-elasticsearch
   :version "0.0.1"
   :author "Finn Völkel"
-  :license ""
+  :license "MIT"
   :serial t
-  :depends-on ("bordeaux-threads"
-               "cl-json"
+  :depends-on ("alexandria"
+               "bordeaux-threads"
                "drakma"
-               "flexi-streams")
+               "flexi-streams"
+               "yason")
   :components ((:file "cl-elasticsearch"))
   :description "Elasticsearch client for Common Lisp"
   :in-order-to ((test-op (test-op "cl-elasticsearch-test"))))
