@@ -8,7 +8,8 @@
   (:use :cl)
   (:import-from :yason
                 :encode
-                :parse)
+                :parse
+                :with-output-to-string)
   (:import-from :drakma
                 :http-request
                 :*text-content-types*)
@@ -57,7 +58,10 @@ objects and read back as keywords")
          '(("application" . "json")))
         (uri (create-uri client uri))
         (yason:*parse-object-key-fn* (if *enable-keywords* #'make-keyword #'identity))
-        (data (if *enable-keywords* (keywords-to-strings data) data))
+        (data (if data
+                  (with-output-to-string (s)
+                    (yason:encode (if *enable-keywords* (keywords-to-strings data) data) s))
+                  nil))
         (parameters (if *enable-keywords*
                         (mapcar (lambda (p) (cons (keywords-to-strings (car p)) (cdr p)))
                                 parameters)
@@ -65,7 +69,7 @@ objects and read back as keywords")
     (multiple-value-bind (body status headers uri stream closep reason)
         (http-request uri
                       :method method
-                      :content (yason:encode data)
+                      :content data
                       :content-type "application/json"
                       :external-format-in :utf-8
                       :external-format-out :utf-8
@@ -74,7 +78,13 @@ objects and read back as keywords")
       (declare (ignore headers uri stream reason))
       (unwind-protect
            (if (= status 400)
-               (error (gethash "error" (yason:parse body)))
+               (let ((error-message
+                      (gethash (if *enable-keywords* :error "error") (parse body))))
+                 (error (cond
+                          ((equal (type-of error-message) 'hash-table)
+                           (format nil "~A" error-message))
+                          (T error-message))))
+               ;; (error (gethash (if *enable-keywords* :error "error") (yason:parse body)))
                (values (yason:parse body) status))
         (when closep
           (close body))))))
