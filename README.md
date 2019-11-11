@@ -35,7 +35,7 @@ The transformation is always to lowercase.
 The library uses the [yason](https://github.com/phmarek/yason) library under 
 the hood to map between lisp objects and JSON. As hashtables are therefore 
 ubiquitous for JSON construction the library also exports a simple reader syntax
-for literal hashmap construction. 
+for literal hashmap construction. The syntax is `#{key1 value1 key2 value2 ...}`.
 
 ```cl
 (enable-hashtable-syntax)
@@ -81,6 +81,7 @@ There are a couple of other clients, although non of them are in quicklisp:
 
 ### Todo
 
+- Add authentication
 - Add bulk indexing
 - Add async indexing with `bordeaux-thread`.
 
