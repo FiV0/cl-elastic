@@ -1,35 +1,71 @@
 # Cl-Elasticsearch - Elasticsearch client for Common Lisp
 
-## Motivation
+### Motivation
 
 This project is supposed to be a simple interface for Elasticsearch. The
-emphasis is on simple, i.e. this is not supposed to be a DSL on top of 
+emphasis is on *simple*, i.e. this is not supposed to be a DSL on top of 
 another DSL. You should be able go to the Elasticsearch docs and translate
 that immediatly into working code. If you are looking for a DSL, checkout
 the section about other work.
 
-## Installation
+### Installation
 
-## Usage
+Currently the library is not in quicklisp. You need to add the repo to your 
+local quicklisp repos.
 
-## Other work
+### Usage
 
-There are a couple of other clients, although non of them are in Quicklisp:
+```cl
+(ql:quicklisp :cl-elasticsearch)
+(use :cl-elasticsearch)
 
-[clesc](https://github.com/own-pt/clesc)
+(defvar *client* (make-instance '<client> :endpoint "http://localhost:9200"))
 
-[cl-elasticsearch](https://github.com/kraison/cl-elasticsearch)
+;; creates an index named `elasticsearch-test`
+(send-request *client* '("elasticsearch-test") :method :put)
+```
+You can enable `keyword` arguments which lets you use keywords as keys in 
+hashtable and parameter plists as well as uri construction. 
+The transformation is always to lowercase.
 
-[eclastic](https://github.com/gschjetne/eclastic)
+```cl
+(setq *enable-keywords* t)
+(send-request *client* '(:elasticsearch-test) :method :put)
+```
+The library uses the [yason](https://github.com/phmarek/yason) library under 
+the hood to map between lisp objects and JSON. As hashtables are therefore 
+ubiquitous for JSON construction the library also exports a simple reader syntax
+for literal hashmap construction. 
 
-## Author
+```cl
+(enable-hashtable-syntax)
+
+(defvar foo "bar")
+;; creates a hashmap with ("bar" 1) and ("foo" 2) key/value pairs
+#{foo 1 "foo" 2}
+
+(disable-hashtable-syntax)
+```
+
+### Other work
+
+There are a couple of other clients, although non of them are in quicklisp:  
+[clesc](https://github.com/own-pt/clesc)  
+[cl-elasticsearch](https://github.com/kraison/cl-elasticsearch)  
+[eclastic](https://github.com/gschjetne/eclastic)  
+
+### Todo
+
+- Add async indexing with `bordeaux-thread`.
+
+### Author
 
 * Finn Völkel (firstname.lastname@gmail.com)
 
-## Licence
+### Licence
 
 MIT Licence
 
-## Copyright
+### Copyright
 
 Copyright (c) 2019 Finn Völkel (firstname.lastname@gmail.com)

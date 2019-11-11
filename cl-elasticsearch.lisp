@@ -6,6 +6,7 @@
 
 (defpackage cl-elasticsearch
   (:use :cl)
+  (:nicknames :elastic)
   (:import-from :yason
                 :encode
                 :parse
@@ -142,10 +143,6 @@ objects and read back as keywords")
                 `(setf (gethash ,(car pair) ,res) ,(cadr pair)))
               pairs)
            ,res)))))
-
-(loop for a = '(1 2 3 4) then (cddr a)
-   collect (list (car a) (cadr a))
-   while (cddr a))
 
 (defvar *previous-readtables* nil)
 
