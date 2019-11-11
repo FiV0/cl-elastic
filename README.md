@@ -41,10 +41,35 @@ for literal hashmap construction.
 (enable-hashtable-syntax)
 
 (defvar foo "bar")
-;; creates a hashmap with ("bar" 1) and ("foo" 2) key/value pairs
+;; creates a hashmap with ("bar" 1) and ("foo" 2) as key/value pairs
 #{foo 1 "foo" 2}
 
 (disable-hashtable-syntax)
+```
+For the remaining examples we are assuming that `*enable-keywords*` is set to
+true and the above hashtable syntax is enabled. The following examples
+assume you are assuming you are using Elasticsearch version 7.0.0 or above.
+Otherwise you might to adapt the index settings.
+
+```cl
+;; create a index with a test filed of type text
+(send-request *client* '("elasticsearch-test") :method :put 
+              :data #{:settings #{:number_of_shards 1}
+                      :mappings #{:properties #{:test #{:type "text"}}}})
+
+;; create a document with id 3
+(send-request *client* '(:elasticsearch-test :_doc 3) :method :put
+              :data #{:test "toto"})
+              
+;; find a document by id
+(send-request *client* '(:elasticsearch-test :_doc 3) :method :get)
+
+;; search for something
+(send-request *client* '(:elasticsearch-test :_search) :method :get
+              :data #{:query #{:term #{:test "toto"}}})
+
+;; delete the document
+(send-request *client* '(:elasticsearch-test :_doc 3) :method :delete)
 ```
 
 ### Other work
@@ -56,6 +81,7 @@ There are a couple of other clients, although non of them are in quicklisp:
 
 ### Todo
 
+- Add bulk indexing
 - Add async indexing with `bordeaux-thread`.
 
 ### Author
