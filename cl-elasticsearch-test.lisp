@@ -8,6 +8,17 @@
 
 ;; NOTE: To run this test file, execute `(asdf:test-system :cl-elasticsearch)' in your Lisp.
 
+(enable-hashtable-syntax)
+
+(define-test enable-keywords-test
+  (let* ((*enable-keywords* t)
+         (res (cl-elasticsearch::keywords-to-strings #{:settings #{:foo "bar"}})))
+    (true (nth-value 1 (gethash "settings" res)))
+    (true (nth-value 1 (gethash "foo" (gethash "settings" res))))
+    (is equal "bar" (gethash "foo" (gethash "settings" res)))))
+
+(disable-hashtable-syntax)
+
 (defvar *client* (make-instance '<client>))
 
 (define-test simple-es-test 
@@ -43,36 +54,36 @@
 (defun delete-index ()
   (send-request *client* '(:elasticsearch-test) :method :delete))
 
-(enable-hashtable-syntax)
+;; (enable-hashtable-syntax)
 
-(setq cl-elasticsearch:*enable-keywords* t)
-
-
-
-(defvar index-settings #{:settings #{:number_of_shards 1}
-                              :mapping #{:test_doc
-                              #{:properties #{:test #{:type "text"}}}}})
-
-(cl-elasticsearch::keywords-to-strings index-settings)
-
-(create-index index-settings)
-
-(delete-index)
-
-(if (> 6 (major-version))
-    (progn)
-    (progn
-      (let ((index-settings #{:settings #{:number_of_shards 1}
-                              :mapping #{:test_doc
-                              #{:properties #{:test #{:type "text"}}}}}
-                              ))
-        (create-index index-settings)
-        (define-test index-document-test
-          (multiple-value-bind (res status)
-              (send-request *client* '(:elasticsearch-test :test_doc 3) :method :put
-                            #{:test "toto" })
-            )
-          ))))
+;; (setq cl-elasticsearch:*enable-keywords* t)
 
 
-(disable-hashtable-syntax)
+
+;; (defvar index-settings #{:settings #{:number_of_shards 1}
+;;                               :mapping #{:test_doc
+;;                               #{:properties #{:test #{:type "text"}}}}})
+
+;; (cl-elasticsearch::keywords-to-strings index-settings)
+
+;; (create-index index-settings)
+
+;; (delete-index)
+
+;; (if (> 6 (major-version))
+;;     (progn)
+;;     (progn
+;;       (let ((index-settings #{:settings #{:number_of_shards 1}
+;;                               :mapping #{:test_doc
+;;                               #{:properties #{:test #{:type "text"}}}}}
+;;                               ))
+;;         (create-index index-settings)
+;;         (define-test index-document-test
+;;           (multiple-value-bind (res status)
+;;               (send-request *client* '(:elasticsearch-test :test_doc 3) :method :put
+;;                             #{:test "toto" })
+;;             )
+;;           ))))
+
+
+;; (disable-hashtable-syntax)

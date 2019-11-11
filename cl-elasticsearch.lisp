@@ -101,9 +101,12 @@ objects and read back as keywords")
                            x)
                   x))
     (list (mapcar #'keywords-to-strings x))
+    ;; o/w strings get transformed into vectors
+    (string x)
     (vector (map 'vector #'keywords-to-strings x))
     (keyword (keyword-downcase x))
     (t x)))
+
 
 ;; new hashtable syntax
 (define-condition odd-number-of-forms (error) ()
