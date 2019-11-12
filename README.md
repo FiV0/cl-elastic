@@ -48,7 +48,7 @@ for literal hashmap construction. The syntax is `#{key1 value1 key2 value2 ...}`
 ```
 For the remaining examples we are assuming that `*enable-keywords*` is set to
 true and the above hashtable syntax is enabled. The following examples
-assume you are assuming you are using Elasticsearch version 7.0.0 or above,
+assume that you are using Elasticsearch version 7.0.0 or above,
 otherwise you might need to adapt the index settings.
 
 ```cl

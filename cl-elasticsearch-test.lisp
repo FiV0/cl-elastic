@@ -42,12 +42,10 @@
   (multiple-value-bind (res status)
       (send-request *client* '(:elasticsearch-test) :method :put)
     (true (gethash "acknowledged" res))
-    ;; (true (gethash :acknowledged res))
     (is = 200 status))
   (multiple-value-bind (res status)
       (send-request *client* '(:elasticsearch-test) :method :delete)
     (true (gethash "acknowledged" res))
-    ;; (true (gethash :acknowledged res))
     (is = 200 status)))
 
 (defun create-index (data)
