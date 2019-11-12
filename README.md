@@ -52,7 +52,7 @@ assume that you are using Elasticsearch version 7.0.0 or above,
 otherwise you might need to adapt the index settings.
 
 ```cl
-;; create a index with a test filed of type text
+;; create a index with a test field of type text
 (send-request *client* '("elasticsearch-test") :method :put 
               :data #{:settings #{:number_of_shards 1}
                       :mappings #{:properties #{:test #{:type "text"}}}})

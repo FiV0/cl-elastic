@@ -9,10 +9,7 @@
   :author "Finn Völkel"
   :license "MIT"
   :serial t
-  :depends-on ("alexandria"
-               "bordeaux-threads"
-               "drakma"
-               "flexi-streams"
+  :depends-on ("drakma"
                "yason")
   :components ((:file "cl-elasticsearch"))
   :description "Elasticsearch client for Common Lisp"
