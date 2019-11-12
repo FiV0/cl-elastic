@@ -70,6 +70,15 @@ Otherwise you might to adapt the index settings.
 
 ;; delete the document
 (send-request *client* '(:elasticsearch-test :_doc 3) :method :delete)
+
+;; for bulk requests you can pass a list of operations as data
+(send-request *client* '(:_bulk) :method :post
+              :data (list
+                     #{:index #{:_index "elasticsearch-test" :_id 3}}
+                     #{:test "foo"}
+                     #{:index #{:_index "elasticsearch-test" :_id 2}}
+                     #{:test "bar"}
+                     #{:delete #{:_index "elasticsearch-test" :_id 3}}))
 ```
 
 ### Other work

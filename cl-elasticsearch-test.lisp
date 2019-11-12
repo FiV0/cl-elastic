@@ -114,6 +114,7 @@
     (is equal (format nil "{\"foo\":1}~%{\"bar\":2}~%") res)))
 
 (define-test bulk-indexing-test
+  :depends-on (encode-json-test)
   (if (< 6 (major-version))
       (let ((index-settings #{:settings #{:number_of_shards 1}
                             :mappings #{:properties #{:test #{:type "text"}}}})
