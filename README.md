@@ -82,8 +82,7 @@ There are a couple of other clients, although non of them are in quicklisp:
 ### Todo
 
 - Add authentication
-- Add bulk indexing
-- Add async indexing with `bordeaux-thread`.
+- Add async indexing with `cl-async`.
 
 ### Author
 

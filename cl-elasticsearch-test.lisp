@@ -50,8 +50,6 @@
     ;; (true (gethash :acknowledged res))
     (is = 200 status)))
 
-(test 'create-and-delete-index-test)
-
 (defun create-index (data)
   (send-request *client* '(:elasticsearch-test) :method :put :data data))
 
@@ -105,6 +103,40 @@
           (is = 200 status)
           (is equal
               "toto"
+              (gethash :test (gethash :_source
+                                      (car (gethash :hits (gethash :hits res)))))))
+        (delete-index))
+      (progn)))
+
+(define-test encode-json-test
+  (let* ((*enable-keywords* t)
+         (res (cl-elasticsearch::encode-json (list #{:foo 1} #{:bar 2}))))
+    (is equal (format nil "{\"foo\":1}~%{\"bar\":2}~%") res)))
+
+(define-test bulk-indexing-test
+  (if (< 6 (major-version))
+      (let ((index-settings #{:settings #{:number_of_shards 1}
+                            :mappings #{:properties #{:test #{:type "text"}}}})
+            (*enable-keywords* t))
+        (create-index index-settings)
+        (multiple-value-bind (res status)
+            (send-request *client* '(:_bulk) :method :post
+                          :data (list
+                                  #{:index #{:_index "elasticsearch-test" :_id 3}}
+                                  #{:test "foo"}
+                                  #{:index #{:_index "elasticsearch-test" :_id 2}}
+                                  #{:test "bar"}
+                                  #{:delete #{:_index "elasticsearch-test" :_id 3}}))
+          (declare (ignore res))
+          (is = 200 status))
+        ;; necessary for indexing to finish
+        (sleep 1)
+        (multiple-value-bind (res status)
+            (send-request *client* '(:elasticsearch-test :_search) :method :get
+                          :data #{:query #{:term #{:test "bar"}}})
+          (is = 200 status)
+          (is equal
+              "bar"
               (gethash :test (gethash :_source
                                       (car (gethash :hits (gethash :hits res)))))))
         (delete-index))

@@ -52,6 +52,17 @@ objects and read back as keywords")
 (defun create-uri (client uri)
   (format nil "~A~A" (endpoint client) (parse-uri uri)))
 
+(defun concat-with-newlines (strings)
+  (format nil "~A~%"
+   (reduce (lambda (res x) (format nil "~A~%~A" res x)) strings)))
+
+(defun encode-json (data)
+  (typecase data
+    (null nil)
+    (list (concat-with-newlines (mapcar #'encode-json data)))
+    (T (with-output-to-string (s)
+         (yason:encode (if *enable-keywords* (keywords-to-strings data) data) s)))))
+
 (defun send-request (client uri &key (method :get) data parameters)
   "Sends a request to an Elasticsearch client."
   (assert (eq (type-of client) '<client>))
@@ -59,10 +70,7 @@ objects and read back as keywords")
          '(("application" . "json")))
         (uri (create-uri client uri))
         (yason:*parse-object-key-fn* (if *enable-keywords* #'make-keyword #'identity))
-        (data (if data
-                  (with-output-to-string (s)
-                    (yason:encode (if *enable-keywords* (keywords-to-strings data) data) s))
-                  nil))
+        (data (encode-json data))
         (parameters (if *enable-keywords*
                         (mapcar (lambda (p) (cons (keywords-to-strings (car p)) (cdr p)))
                                 parameters)
@@ -93,7 +101,7 @@ objects and read back as keywords")
 ;; utility functions
 
 (defun make-keyword (name)
-  "Creates a keyword symbol for a given "
+  "Creates a keyword symbol for a given string NAME."
   (values (intern (string-upcase name) "KEYWORD")))
 
 (defun keyword-downcase (keyword)
@@ -117,7 +125,6 @@ objects and read back as keywords")
     (vector (map 'vector #'keywords-to-strings x))
     (keyword (keyword-downcase x))
     (t x)))
-
 
 ;; new hashtable syntax
 (define-condition odd-number-of-forms (error) ()
@@ -155,8 +162,6 @@ objects and read back as keywords")
 (defmacro disable-hashtable-syntax ()
   '(eval-when (:compile-toplevel :load-toplevel :execute)
     (setq *readtable* (pop *previous-readtables*))))
-
-;; (find-method #'print-object () (list 'hash-table t))
 
 (defmethod print-object ((object hash-table) stream)
   (if (= (hash-table-count object) 0)
