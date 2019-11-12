@@ -27,7 +27,7 @@
 
 (defvar *enable-keywords* nil
   "If set to a true value, keywords will be transformed to strings in JSON 
-objects and read back as keywords")
+objects and read back as keywords.")
 
 (defclass <client> ()
   ((endpoint :initarg :endpoint
@@ -41,7 +41,7 @@ objects and read back as keywords")
              :reader password)))
 
 (defun parse-uri (uri)
-  "Parses a URI in form of string, keyword or list."
+  "Parses a URI in form of a string, keyword or list."
   (typecase uri
     (string uri)
     (keyword (keyword-downcase uri))
@@ -53,10 +53,13 @@ objects and read back as keywords")
   (format nil "~A~A" (endpoint client) (parse-uri uri)))
 
 (defun concat-with-newlines (strings)
+  "Concats STRINGS with newlines. Ends in a newline."
   (format nil "~A~%"
    (reduce (lambda (res x) (format nil "~A~%~A" res x)) strings)))
 
 (defun encode-json (data)
+  "Transforms a lisp object into a JSON object in string form. A list is
+transformed into the newline seperated concatenation of JSON objects."
   (typecase data
     (null nil)
     (list (concat-with-newlines (mapcar #'encode-json data)))

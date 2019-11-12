@@ -5,7 +5,7 @@
 This project is supposed to be a simple interface for Elasticsearch. The
 emphasis is on *simple*, i.e. this is not supposed to be a DSL on top of 
 another DSL. You should be able go to the Elasticsearch docs and translate
-that immediatly into working code. If you are looking for a DSL, checkout
+that immediatly into working code. If you are looking for a DSL checkout
 the section about other work.
 
 ### Installation
@@ -48,8 +48,8 @@ for literal hashmap construction. The syntax is `#{key1 value1 key2 value2 ...}`
 ```
 For the remaining examples we are assuming that `*enable-keywords*` is set to
 true and the above hashtable syntax is enabled. The following examples
-assume you are assuming you are using Elasticsearch version 7.0.0 or above.
-Otherwise you might to adapt the index settings.
+assume you are assuming you are using Elasticsearch version 7.0.0 or above,
+otherwise you might need to adapt the index settings.
 
 ```cl
 ;; create a index with a test filed of type text
