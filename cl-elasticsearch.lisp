@@ -166,12 +166,13 @@ transformed into the newline seperated concatenation of JSON objects."
   '(eval-when (:compile-toplevel :load-toplevel :execute)
     (setq *readtable* (pop *previous-readtables*))))
 
-(defmethod print-object ((object hash-table) stream)
-  (if (= (hash-table-count object) 0)
-      (format stream "#{}")
-      (let ((data (loop for k being the hash-keys of object
-                     for v being the hash-values of object
-                     for res = (format nil "~S ~S" k v)
-                     then (format nil "~A ~S ~S" res k v)
-                     finally (return res))))
-        (format stream "#{~A}" data))))
+(handler-bind (#+sbcl(sb-kernel:redefinition-with-defmethod #'muffle-warning))
+  (defmethod print-object ((object hash-table) stream)
+    (if (= (hash-table-count object) 0)
+        (format stream "#{}")
+        (let ((data (loop for k being the hash-keys of object
+                       for v being the hash-values of object
+                       for res = (format nil "~S ~S" k v)
+                       then (format nil "~A ~S ~S" res k v)
+                       finally (return res))))
+          (format stream "#{~A}" data)))))
