@@ -42,19 +42,21 @@
 (define-test create-and-delete-index-test
   :depends-on (simple-es-test)
   (multiple-value-bind (res status)
-      (send-request *client* '(:elasticsearch-test) :method :put)
+      (send-request *client* :elasticsearch-test :method :put)
     (true (gethash "acknowledged" res))
     (is = 200 status))
   (multiple-value-bind (res status)
-      (send-request *client* '(:elasticsearch-test) :method :delete)
+      (send-request *client* :elasticsearch-test :method :delete)
     (true (gethash "acknowledged" res))
     (is = 200 status)))
 
 (defun create-index (data)
-  (send-request *client* '(:elasticsearch-test) :method :put :data data))
+  (send-request *client* :elasticsearch-test :method :put :data data))
 
 (defun delete-index ()
-  (send-request *client* '(:elasticsearch-test) :method :delete))
+  (send-request *client* :elasticsearch-test :method :delete))
+
+;; (send-request *client* "elasticsearch-test" :method :delete)
 
 (in-readtable hashtable-syntax)
 
@@ -117,17 +119,17 @@
   :depends-on (encode-json-test)
   (if (< 6 (major-version))
       (let ((index-settings #{:settings #{:number_of_shards 1}
-                            :mappings #{:properties #{:test #{:type "text"}}}})
+                            :mappings #{:properties #{:test #{:type :text}}}})
             (*enable-keywords* t))
         (create-index index-settings)
         (multiple-value-bind (res status)
-            (send-request *client* '(:_bulk) :method :post
+            (send-request *client* :_bulk :method :post
                           :data (list
-                                  #{:index #{:_index "elasticsearch-test" :_id 3}}
+                                  #{:index #{:_index :elasticsearch-test :_id 3}}
                                   #{:test "foo"}
-                                  #{:index #{:_index "elasticsearch-test" :_id 2}}
+                                  #{:index #{:_index :elasticsearch-test :_id 2}}
                                   #{:test "bar"}
-                                  #{:delete #{:_index "elasticsearch-test" :_id 3}}))
+                                  #{:delete #{:_index :elasticsearch-test :_id 3}}))
           (declare (ignore res))
           (is = 200 status))
         ;; necessary for indexing to finish

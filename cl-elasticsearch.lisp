@@ -46,11 +46,12 @@ objects and read back as keywords.")
 (defun parse-uri (uri)
   "Parses a URI in form of a string, keyword or list."
   (typecase uri
-    (string uri)
-    (keyword (keyword-downcase uri))
+    (string (format nil "/~A" uri))
+    (keyword (format nil "/~A" (keyword-downcase uri)))
     (list (reduce (lambda (res uri)
-                    (format nil "~A/~A" res (parse-uri uri)))
-                  uri :initial-value ""))))
+                    (format nil "~A~A" res (parse-uri uri)))
+                  uri :initial-value ""))
+    (t (format nil "/~A" uri))))
 
 (defun create-uri (client uri)
   (format nil "~A~A" (endpoint client) (parse-uri uri)))

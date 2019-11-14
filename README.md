@@ -36,7 +36,7 @@ The transformation is always to lowercase.
 The library uses the [yason](https://github.com/phmarek/yason) library under 
 the hood to map between lisp objects and JSON. As hashtables are therefore 
 ubiquitous for JSON construction the library also exports a simple reader syntax
-for literal hashmap construction. The syntax is `#{key1 value1 key2 value2 ...}`.
+for literal hashmap construction. The syntax is `#{key1 value1 key2 value2 ...}`. 
 For the enabling and disabling of the syntax the library uses 
 [named-readtables](https://github.com/melisgl/named-readtables).
 
@@ -56,7 +56,7 @@ otherwise you might need to adapt the index settings.
 
 ```cl
 ;; create a index with a test field of type text
-(send-request *client* '("elasticsearch-test") :method :put 
+(send-request *client* :elasticsearch-test :method :put 
               :data #{:settings #{:number_of_shards 1}
                       :mappings #{:properties #{:test #{:type "text"}}}})
 
@@ -75,13 +75,13 @@ otherwise you might need to adapt the index settings.
 (send-request *client* '(:elasticsearch-test :_doc 3) :method :delete)
 
 ;; for bulk requests you can pass a list of operations as data
-(send-request *client* '(:_bulk) :method :post
+(send-request *client* :_bulk :method :post
               :data (list
-                     #{:index #{:_index "elasticsearch-test" :_id 3}}
+                     #{:index #{:_index :elasticsearch-test :_id 3}}
                      #{:test "foo"}
-                     #{:index #{:_index "elasticsearch-test" :_id 2}}
+                     #{:index #{:_index :elasticsearch-test :_id 2}}
                      #{:test "bar"}
-                     #{:delete #{:_index "elasticsearch-test" :_id 3}}))
+                     #{:delete #{:_index :elasticsearch-test :_id 3}}))
 ```
 
 ### Other work
