@@ -7,13 +7,15 @@
 (defpackage cl-elasticsearch
   (:use :cl)
   (:nicknames :elastic)
+  (:import-from :drakma
+                :http-request
+                :*text-content-types*)
+  (:import-from :named-readtables
+                :defreadtable)
   (:import-from :yason
                 :encode
                 :parse
                 :with-output-to-string)
-  (:import-from :drakma
-                :http-request
-                :*text-content-types*)
   (:export :<client>
            :endpoint
            :user
@@ -21,7 +23,8 @@
            :send-request
            :*enable-keywords*
            :enable-hashtable-syntax
-           :disable-hashtable-syntax))
+           :disable-hashtable-syntax
+           :hashtable-syntax))
 
 (in-package :cl-elasticsearch)
 
@@ -160,11 +163,18 @@ transformed into the newline seperated concatenation of JSON objects."
   '(eval-when (:compile-toplevel :load-toplevel :execute)
     (push *readtable* *previous-readtables*)
     (setq *readtable* (copy-readtable))
-    (set-dispatch-macro-character #\# #\{ #'|#{-reader-}|)))
+    (set-dispatch-macro-character #\# #\{ #'|#{-reader-}|)
+    (values)))
 
 (defmacro disable-hashtable-syntax ()
   '(eval-when (:compile-toplevel :load-toplevel :execute)
-    (setq *readtable* (pop *previous-readtables*))))
+    (setq *readtable* (pop *previous-readtables*))
+    (values)))
+
+(defreadtable hashtable-syntax
+  (:merge :standard)
+  (:macro-char #\# :dispatch)
+  (:dispatch-macro-char #\# #\{ #'|#{-reader-}|))
 
 (handler-bind (#+sbcl(sb-kernel:redefinition-with-defmethod #'muffle-warning))
   (defmethod print-object ((object hash-table) stream)

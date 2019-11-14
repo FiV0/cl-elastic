@@ -11,6 +11,7 @@
   :license ""
   :description "Test system for cl-elasticsearch"
   :depends-on (:cl-elasticsearch
+               :named-readtables
                :parachute)
   :components ((:file "cl-elasticsearch-test"))
   :perform (asdf:test-op (op c) (uiop:symbol-call :parachute :test

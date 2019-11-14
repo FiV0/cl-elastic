@@ -2,13 +2,15 @@
   (:use :cl
         :cl-elasticsearch
         :parachute)
+  (:import-from :named-readtables
+                :in-readtable)
   (:shadow #:run)
   (:export cl-elasticsearch-test))
 (in-package :cl-elasticsearch-test)
 
 ;; NOTE: To run this test file, execute `(asdf:test-system :cl-elasticsearch)' in your Lisp.
 
-(enable-hashtable-syntax)
+(in-readtable hashtable-syntax)
 
 (define-test enable-keywords-test
   (let* ((*enable-keywords* t)
@@ -17,7 +19,7 @@
     (true (nth-value 1 (gethash "foo" (gethash "settings" res))))
     (is equal "bar" (gethash "foo" (gethash "settings" res)))))
 
-(disable-hashtable-syntax)
+(in-readtable :standard)
 
 (defvar *client* (make-instance '<client>))
 
@@ -54,7 +56,7 @@
 (defun delete-index ()
   (send-request *client* '(:elasticsearch-test) :method :delete))
 
-(enable-hashtable-syntax)
+(in-readtable hashtable-syntax)
 
 (define-test index-find-delete-document-test
   (if (< 6 (major-version))
@@ -141,4 +143,4 @@
         (delete-index))
       (progn)))
 
-(disable-hashtable-syntax)
+(in-readtable :standard)

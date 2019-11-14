@@ -9,8 +9,9 @@
   :author "Finn Völkel"
   :license "MIT"
   :serial t
-  :depends-on ("drakma"
-               "yason")
+  :depends-on (:drakma
+               :named-readtables
+               :yason)
   :components ((:file "cl-elasticsearch"))
   :description "Elasticsearch client for Common Lisp"
   :in-order-to ((test-op (test-op "cl-elasticsearch-test"))))

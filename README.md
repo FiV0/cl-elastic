@@ -2,8 +2,9 @@
 
 ### Motivation
 
-This project is supposed to be a simple interface for Elasticsearch. The
-emphasis is on *simple*, i.e. this is not supposed to be a DSL on top of 
+This project is supposed to be a simple interface for 
+[Elasticsearch](https://www.elastic.co/products/elasticsearch). 
+The emphasis is on *simple*, i.e. this is not supposed to be a DSL on top of 
 another DSL. You should be able go to the Elasticsearch docs and translate
 that immediatly into working code. If you are looking for a DSL checkout
 the section about other work.
@@ -36,15 +37,17 @@ The library uses the [yason](https://github.com/phmarek/yason) library under
 the hood to map between lisp objects and JSON. As hashtables are therefore 
 ubiquitous for JSON construction the library also exports a simple reader syntax
 for literal hashmap construction. The syntax is `#{key1 value1 key2 value2 ...}`.
+For the enabling and disabling of the syntax the library uses 
+[named-readtables](https://github.com/melisgl/named-readtables).
 
 ```cl
-(enable-hashtable-syntax)
+(in-readtable hashtable-syntax)
 
 (defvar foo "bar")
 ;; creates a hashmap with ("bar" 1) and ("foo" 2) as key/value pairs
 #{foo 1 "foo" 2}
 
-(disable-hashtable-syntax)
+(in-readtable :standard)
 ```
 For the remaining examples we are assuming that `*enable-keywords*` is set to
 true and the above hashtable syntax is enabled. The following examples
