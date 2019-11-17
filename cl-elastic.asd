@@ -1,10 +1,10 @@
 #|
-  This file is a part of cl-elasticsearch.
+  This file is a part of cl-elastic.
   (c) 2019 Finn Völkel 
   Author: Finn Völkel  (firstname.lastname@gmail.com)
 |#
 
-(asdf:defsystem cl-elasticsearch
+(asdf:defsystem cl-elastic
   :version "0.0.1"
   :author "Finn Völkel"
   :license "MIT"
@@ -12,6 +12,6 @@
   :depends-on (:drakma
                :named-readtables
                :yason)
-  :components ((:file "cl-elasticsearch"))
+  :components ((:file "cl-elastic"))
   :description "Elasticsearch client for Common Lisp"
-  :in-order-to ((test-op (test-op "cl-elasticsearch-test"))))
+  :in-order-to ((test-op (test-op "cl-elastic-test"))))

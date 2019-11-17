@@ -1,20 +1,20 @@
-(defpackage cl-elasticsearch-test
+(defpackage cl-elastic-test
   (:use :cl
-        :cl-elasticsearch
+        :cl-elastic
         :parachute)
   (:import-from :named-readtables
                 :in-readtable)
   (:shadow #:run)
-  (:export cl-elasticsearch-test))
-(in-package :cl-elasticsearch-test)
+  (:export cl-elastic-test))
+(in-package :cl-elastic-test)
 
-;; NOTE: To run this test file, execute `(asdf:test-system :cl-elasticsearch)' in your Lisp.
+;; NOTE: To run this test file, execute `(asdf:test-system :cl-elastic)' in your Lisp.
 
 (in-readtable hashtable-syntax)
 
 (define-test enable-keywords-test
   (let* ((*enable-keywords* t)
-         (res (cl-elasticsearch::keywords-to-strings #{:settings #{:foo "bar"}})))
+         (res (cl-elastic::keywords-to-strings #{:settings #{:foo "bar"}})))
     (true (nth-value 1 (gethash "settings" res)))
     (true (nth-value 1 (gethash "foo" (gethash "settings" res))))
     (is equal "bar" (gethash "foo" (gethash "settings" res)))))
@@ -112,7 +112,7 @@
 
 (define-test encode-json-test
   (let* ((*enable-keywords* t)
-         (res (cl-elasticsearch::encode-json (list #{:foo 1} #{:bar 2}))))
+         (res (cl-elastic::encode-json (list #{:foo 1} #{:bar 2}))))
     (is equal (format nil "{\"foo\":1}~%{\"bar\":2}~%") res)))
 
 (define-test bulk-indexing-test

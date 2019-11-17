@@ -1,4 +1,4 @@
-# Cl-Elasticsearch - Elasticsearch client for Common Lisp
+# Cl-Elastic - Elasticsearch client for Common Lisp
 
 ### Motivation
 
@@ -17,8 +17,8 @@ local quicklisp repos.
 ### Usage
 
 ```cl
-(ql:quicklisp :cl-elasticsearch)
-(use :cl-elasticsearch)
+(ql:quicklisp :cl-elastic)
+(use :cl-elastic)
 
 (defvar *client* (make-instance '<client> :endpoint "http://localhost:9200"))
 

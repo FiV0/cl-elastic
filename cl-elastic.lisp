@@ -1,10 +1,10 @@
 #|
-  This file is a part of cl-elasticsearch.
+  This file is a part of cl-elastic.
   (c) 2019 Finn Völkel 
   Author: Finn Völkel  (firstname.lastname@gmail.com)
 |#
 
-(defpackage cl-elasticsearch
+(defpackage cl-elastic
   (:use :cl)
   (:nicknames :elastic)
   (:import-from :drakma
@@ -26,7 +26,7 @@
            :disable-hashtable-syntax
            :hashtable-syntax))
 
-(in-package :cl-elasticsearch)
+(in-package :cl-elastic)
 
 (defvar *enable-keywords* nil
   "If set to a true value, keywords will be transformed to strings in JSON 
