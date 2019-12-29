@@ -11,8 +11,10 @@ the section about other work.
 
 ### Installation
 
-Currently the library is not in quicklisp. You need to add the repo to your 
-local quicklisp repos.
+__Update__: 29.11.2019
+
+The library is now in quicklisp. 
+You can now simply do `(ql:quicklisp :cl-elastic)` to load cl-elastic.
 
 ### Usage
 
